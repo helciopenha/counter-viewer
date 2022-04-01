@@ -1,139 +1,116 @@
-<!--
-title: 'Serverless Framework Node Express API service backed by DynamoDB on AWS'
-description: 'This template demonstrates how to develop and deploy a simple Node Express API service backed by DynamoDB running on AWS Lambda using the traditional Serverless Framework.'
-layout: Doc
-framework: v3
-platform: AWS
-language: nodeJS
-priority: 1
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+# Views Counter
+Contador de visualizações
 
-# Serverless Framework Node Express API on AWS
+## Descrição
+Incrementar um contador de visualização de página e ter como pegar esse valor de quantidade de visualizações
 
-This template demonstrates how to develop and deploy a simple Node Express API service, backed by DynamoDB database, running on AWS Lambda using the traditional Serverless Framework.
+Além de contar as visualizações, deve-se conseguir cadastrar usuário e mostrar os dados do usuário cadastrado.
 
+1. Incrementar o número de acessos;
+2. Consultar o número de acessos;
+3. Criar um usuário;
+4. Visualizar as informações de um usuário.
 
-## Anatomy of the template
+## Arquitetura
+O projeto foi pensado para utilizar serviços da AWS como DynamoDB, S3, API Gateway usando o [Serverless](https://www.serverless.com/), conforme mostra o diagrama abaixo.
 
-This template configures a single function, `api`, which is responsible for handling all incoming requests thanks to the `httpApi` event. To learn more about `httpApi` event configuration options, please refer to [httpApi event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api/). As the event is configured in a way to accept all incoming requests, `express` framework is responsible for routing and handling requests internally. Implementation takes advantage of `serverless-http` package, which allows you to wrap existing `express` applications. To learn more about `serverless-http`, please refer to corresponding [GitHub repository](https://github.com/dougmoscrop/serverless-http). Additionally, it also handles provisioning of a DynamoDB database that is used for storing data about users. The `express` application exposes two endpoints, `POST /users` and `GET /user/{userId}`, which allow to create and retrieve users.
+![](./diagrams/serverless-architecture.drawio.svg)
 
-## Usage
-
-### Deployment
-
-Install dependencies with:
-
-```
+## Instalação
+Primeiramente você deve ter/fazer a instalação do [AWS CLI](https://aws.amazon.com/cli/) configurando em sua máquina. Em seguida realizar o clone do projeto para a sua máquina para então execute a instalação dos pacotes.
+```bash
 npm install
 ```
 
-and then deploy with:
-
-```
-serverless deploy
-```
-
-After running deploy, you should see output similar to:
-
+Para realizar o deploy para a AWS
 ```bash
-Deploying aws-node-express-dynamodb-api-project to stage dev (us-east-1)
-
-✔ Service deployed to stack aws-node-express-dynamodb-api-project-dev (196s)
-
-endpoint: ANY - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com
-functions:
-  api: aws-node-express-dynamodb-api-project-dev-api (766 kB)
+sls deploy
 ```
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [`httpApi` event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api/). Additionally, in current configuration, the DynamoDB table will be removed when running `serverless remove`. To retain the DynamoDB table even after removal of the stack, add `DeletionPolicy: Retain` to its resource definition.
-
-### Invocation
-
-After successful deployment, you can create a new user by calling the corresponding endpoint:
-
-```bash
-curl --request POST 'https://xxxxxx.execute-api.us-east-1.amazonaws.com/users' --header 'Content-Type: application/json' --data-raw '{"name": "John", "userId": "someUserId"}'
+Para executar local a API
+```
+npm start
 ```
 
-Which should result in the following response:
+## Uso
+Para utilizar a API você pode executar tanto local quanto na AWS
 
-```bash
-{"userId":"someUserId","name":"John"}
-```
+URL AWS: 
+URL Local: https://localhost:3000/
 
-You can later retrieve the user by `userId` by calling the following endpoint:
+---
 
-```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/users/someUserId
-```
+## Rotas
 
-Which should result in the following response:
+### Contador
+#### GET - Visualizar contagem
+Path: `/count-viewer`
 
-```bash
-{"userId":"someUserId","name":"John"}
-```
-
-If you try to retrieve user that does not exist, you should receive the following response:
-
-```bash
-{"error":"Could not find user with provided \"userId\""}
-```
-
-### Local development
-
-It is also possible to emulate DynamoDB, API Gateway and Lambda locally using the `serverless-dynamodb-local` and `serverless-offline` plugins. In order to do that, run:
-
-```bash
-serverless plugin install -n serverless-dynamodb-local
-serverless plugin install -n serverless-offline
-```
-
-It will add both plugins to `devDependencies` in `package.json` file as well as will add it to `plugins` in `serverless.yml`. Make sure that `serverless-offline` is listed as last plugin in `plugins` section:
-
-```
-plugins:
-  - serverless-dynamodb-local
-  - serverless-offline
-```
-
-You should also add the following config to `custom` section in `serverless.yml`:
-
-```
-custom:
-  (...)
-  dynamodb:
-    start:
-      migrate: true
-    stages:
-      - dev
-```
-
-Additionally, we need to reconfigure `AWS.DynamoDB.DocumentClient` to connect to our local instance of DynamoDB. We can take advantage of `IS_OFFLINE` environment variable set by `serverless-offline` plugin and replace:
-
-```javascript
-const dynamoDbClient = new AWS.DynamoDB.DocumentClient();
-```
-
-with the following:
-
-```javascript
-const dynamoDbClientParams = {};
-if (process.env.IS_OFFLINE) {
-  dynamoDbClientParams.region = 'localhost'
-  dynamoDbClientParams.endpoint = 'http://localhost:8000'
+Response
+```json
+{
+	"status": 200,
+	"path": "helcio/penha",
+	"value": 9
 }
-const dynamoDbClient = new AWS.DynamoDB.DocumentClient(dynamoDbClientParams);
 ```
 
-After that, running the following command with start both local API Gateway emulator as well as local instance of emulated DynamoDB:
+#### POST - Incrementar contador
+Path: `/count-viewer`
 
-```bash
-serverless offline start
+Ele sempre incrementa +1.
+
+
+### Usuários
+#### POST - Cadastrar usuário
+Path: `/users`
+
+Enviar no Body
+```json
+{
+  "email": "johndoe@email.com",
+  "name": "John Doe",
+  "username": "johndoe",
+	"password": "123456"
+}
 ```
 
-To learn more about the capabilities of `serverless-offline` and `serverless-dynamodb-local`, please refer to their corresponding GitHub repositories:
-- https://github.com/dherault/serverless-offline
-- https://github.com/99x/serverless-dynamodb-local
+#### GET - Pegar usuário por ID
+Path: `/users/:idUser`
+
+Response
+```json
+{
+	"userId": "f68cd0b4-a8f8-45b0-b910-16ba50397153",
+	"email": "johndoe@email.com",
+	"name": "John Doe",
+	"username": "johndoe",
+	"created_at": "2022-04-01T05:53:09.080Z",
+	"updated_at": "2022-04-01T05:53:09.080Z"
+}
+```
+
+#### GET - Listar todos os usuários
+Path: `/users`
+
+Response
+```json
+[
+	{
+		"updated_at": "2022-04-01T11:51:10.114Z",
+		"created_at": "2022-04-01T11:51:10.114Z",
+		"userId": "920430f9-6e8f-424e-b93e-5d29872bab11",
+		"username": "johndoe",
+		"email": "johndoe@email.com",
+		"name": "John Doe"
+	},
+	{
+		"updated_at": "2022-04-01T11:49:34.192Z",
+		"created_at": "2022-04-01T11:49:34.192Z",
+		"userId": "35ecada1-7efa-49f0-b93d-a82d7abb0621",
+		"username": "joaomaria",
+		"email": "joaomaria@test.com",
+		"name": "Joao Maria"
+	}
+]
+```
