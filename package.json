@@ -1,0 +1,24 @@
+{
+  "name": "counter-viewer",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "express": "^4.17.1",
+    "serverless-http": "^2.7.0"
+  },
+  "main": "handler.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/helciopenha/counter-viewer.git"
+  },
+  "author": "helciopenha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/helciopenha/counter-viewer/issues"
+  },
+  "homepage": "https://github.com/helciopenha/counter-viewer#readme"
+}
