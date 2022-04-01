@@ -23,6 +23,9 @@ provider:
   environment:
     USERS_TABLE: ${self:custom.tableName}
 
+plugins:
+  - serverless-offline
+
 functions:
   api:
     handler: handler.handler

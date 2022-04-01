@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
+    "joi": "^17.6.0",
     "serverless-http": "^2.7.0"
   },
   "main": "handler.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "serverless": "^3.10.2",
+    "serverless-offline": "^8.5.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx nodemon --exec npx sls offline --host 0.0.0.0"
   },
   "repository": {
     "type": "git",
