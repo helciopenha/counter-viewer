@@ -10,7 +10,7 @@ app.use(express.json())
 app.use(routes)
 
 app.use((request, response, next) => {
-  return res.status(404).json({
+  return response.status(404).json({
     error: 'Not Found'
   })
 })
