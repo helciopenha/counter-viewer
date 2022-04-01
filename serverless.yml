@@ -3,6 +3,7 @@ frameworkVersion: '3'
 
 custom:
   tableName: 'users-table-${sls:stage}'
+  tableNameViewers: 'count-viewers-${sls:stage}'
 
 provider:
   name: aws
@@ -20,6 +21,7 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [ UsersTable, Arn ]
+            - Fn::GetAtt: [ CountViewer, Arn ]
   environment:
     USERS_TABLE: ${self:custom.tableName}
 
@@ -45,3 +47,17 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.tableName}
+
+    CountViewer:
+      Type: "AWS::DynamoDB::Table"
+      Properties:             
+        TableName: ${self:custom.tableNameViewers}
+        AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
