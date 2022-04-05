@@ -24,6 +24,8 @@ provider:
             - Fn::GetAtt: [ CountViewer, Arn ]
   environment:
     USERS_TABLE: ${self:custom.tableName}
+  httpApi:
+    cors: true
 
 plugins:
   - serverless-offline
